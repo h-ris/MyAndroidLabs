@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import algonquin.cst2335.xu000285.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ActivityMainBinding variableBinding;
 
     // equals to staic void main(Stirng args[])
     @Override //this is the starting point
@@ -16,7 +18,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //loads the screen
-        setContentView(R.layout.activity_main);
+        variableBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(variableBinding.getRoot());
 
         TextView theText = findViewById(R.id.textview);
 
