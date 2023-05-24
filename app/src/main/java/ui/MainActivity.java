@@ -1,4 +1,4 @@
-package algonquin.cst2335.xu000285;
+package ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import algonquin.cst2335.xu000285.R;
 import algonquin.cst2335.xu000285.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
