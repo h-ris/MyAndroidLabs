@@ -13,6 +13,7 @@ import algonquin.cst2335.xu000285.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding variableBinding;
+    private MainViewModel model;
 
     // equals to staic void main(Stirng args[])
     @Override //this is the starting point
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
         TextView theText = findViewById(R.id.textview);
 
         Button myButton = findViewById(R.id.mybutton);
+
+        model = new ViewModelProvider(this).get(MainViewModel.class);
 
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
