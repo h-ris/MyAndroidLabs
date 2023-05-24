@@ -1,6 +1,7 @@
 package ui;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import algonquin.cst2335.xu000285.R;
 import algonquin.cst2335.xu000285.databinding.ActivityMainBinding;
+import data.MainViewModel;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,23 +22,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        model = new ViewModelProvider(this).get(MainViewModel.class);
+
         //loads the screen
         variableBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(variableBinding.getRoot());
 
-        TextView theText = findViewById(R.id.textview);
-
-        Button myButton = findViewById(R.id.mybutton);
-
-        model = new ViewModelProvider(this).get(MainViewModel.class);
-
-        myButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // this gets run when you click the button
-                theText.setText("You clicked the button.");
-                myButton.setText("Something new here.");
-            }
+        variableBinding.mybutton.setOnClickListener(click ->
+        {
+            model.editString.postValue(variableBinding.textview.getText().toString());
+            model.editString.observe(this, s -> {
+                variableBinding.textview.setText("Your edit text has " + s);
+            });
         });
+
+
+
+
+//        myButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // this gets run when you click the button
+//                myText.setText("You clicked the button.");
+//                myButton.setText("Something new here.");
+//            }
+//        });
     }
 }
