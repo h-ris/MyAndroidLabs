@@ -3,4 +3,7 @@
     <string name="app_name">Huixin\'s Android Labs</string>
     <string name="hello_message">哈嘍世界！</string>
     <string name="button_message">我是一個按鈕</string>
+    <string name="button1">按鈕1</string>
+    <string name="button2">按鈕2</string>
+    <string name="button3">按鈕3</string>
 </resources>
