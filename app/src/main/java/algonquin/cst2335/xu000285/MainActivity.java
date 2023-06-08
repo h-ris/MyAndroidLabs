@@ -30,9 +30,13 @@ public class MainActivity extends AppCompatActivity {
         variableBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(variableBinding.getRoot());
         SharedPreferences prefs = getSharedPreferences("MyData", Context.MODE_PRIVATE);
+
+
         //instaniate a view model
         //model = new ViewModelProvider(this).get(MainViewModel.class);
         variableBinding.emailPrompt.setText(prefs.getString("Email", ""));
+
+
         //event listener
         variableBinding.loginBtn.setOnClickListener((v)->{
             Log.e(TAG, "You clicked the button");
