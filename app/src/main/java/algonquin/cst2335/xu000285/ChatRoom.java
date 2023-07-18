@@ -36,7 +36,7 @@ public class ChatRoom extends AppCompatActivity {
     private RecyclerView.Adapter myAdapter;
     ArrayList<ChatMessage> messagesList = new ArrayList<>();
     ChatMessageDAO myDAO;
-    RecyclerView recyclerView;
+    //RecyclerView recyclerView;
 
 
     @Override
@@ -47,7 +47,6 @@ public class ChatRoom extends AppCompatActivity {
         messagesList = chatModel.messages.getValue();
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        recyclerView = binding.recycleView;
 
 
         // open a database

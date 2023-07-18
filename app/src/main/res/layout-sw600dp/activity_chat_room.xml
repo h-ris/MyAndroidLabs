@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/sendBtn"
+        android:id="@+id/button"
         android:layout_width="98dp"
         android:layout_height="46dp"
         android:text="SEND"
@@ -27,15 +27,15 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/chatroomText"
+        android:id="@+id/editText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/receiveBtn"
-        app:layout_constraintStart_toEndOf="@+id/sendBtn" />
+        app:layout_constraintEnd_toStartOf="@+id/button2"
+        app:layout_constraintStart_toEndOf="@+id/button" />
 
     <Button
-        android:id="@+id/receiveBtn"
+        android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="RECEIVE"
