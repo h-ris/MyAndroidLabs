@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +45,8 @@ public class ChatRoom extends AppCompatActivity {
     RecyclerView recyclerView;
     Toolbar myToolBar;
 
+    Button sendBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +58,7 @@ public class ChatRoom extends AppCompatActivity {
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         myToolBar = binding.myToolbar;
-
+        sendBtn = binding.sendButton;
 
         // add a tool bar
         setSupportActionBar(myToolBar);
@@ -80,7 +83,7 @@ public class ChatRoom extends AppCompatActivity {
         }
 
         // send button
-        binding.button.setOnClickListener(click -> {
+        binding.sendButton.setOnClickListener(click -> {
             String input = binding.editText.getText().toString();
             int type = 0;
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MM-yyy hh-mm-ss a");
@@ -104,7 +107,7 @@ public class ChatRoom extends AppCompatActivity {
         });
 
         //receive button
-        binding.button2.setOnClickListener(click -> {
+        binding.receiveBtn.setOnClickListener(click -> {
 
             String input = binding.editText.getText().toString();
             int type = 1;
@@ -180,7 +183,8 @@ public class ChatRoom extends AppCompatActivity {
 
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.fragmentLocation, chatFragment)
+                    .replace(R.id.fragmentLocation, chatFragment)
+                    .addToBackStack("Back")
                     .commit();
         });
     }
@@ -243,7 +247,7 @@ public class ChatRoom extends AppCompatActivity {
                                     myAdapter.notifyItemRemoved(position));
                         });
 
-                        Snackbar.make(recyclerView,"Message was deleted", Snackbar.LENGTH_LONG )
+                        Snackbar.make(sendBtn,"Message was deleted", Snackbar.LENGTH_LONG )
                                 .setAction("Undo", clk2->{
                                     Executor thrd = Executors.newSingleThreadExecutor();
                                     thrd.execute(()->{ myDAO.insertMessage(selected); });
