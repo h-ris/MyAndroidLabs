@@ -168,7 +168,8 @@ public class ChatRoom extends AppCompatActivity {
 
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.fragmentLocation, chatFragment)
+                    .replace(R.id.fragmentLocation, chatFragment)
+                    .addToBackStack("back")
                     .commit();
         });
     }
