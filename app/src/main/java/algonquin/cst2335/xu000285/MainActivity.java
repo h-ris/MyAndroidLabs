@@ -6,140 +6,179 @@ import static java.lang.Character.isUpperCase;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+
+import algonquin.cst2335.xu000285.databinding.ActivityMainBinding;
+
 /**
- * Page that prompts user to input password, and software validates the password.
+ * Page that prompts user to input City Name and display the weather information.
  * @author Huixin Xu
  * @version 1.0
  */
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * This holds the text at the center of the screen
-     */
-    TextView tv = null;
-    /**
-     * This holds the edit text at the below the text view
-     */
-    EditText et = null;
+    ActivityMainBinding binding;
+    protected String cityName;
+    RequestQueue queue = null;
+    Button forecastBtn = null;
+    EditText cityNameInput = null;
+    RequestQueue imgqueue = null;
 
-    /**
-     * This holds the button on the bottom of the screen
-     */
-    Button btn = null;
+    Bitmap image;
+
+    TextView temp;
+    TextView maxTemp;
+    TextView minTemp;
+    TextView humid;
+    ImageView weatherIcon;
+    TextView desc;
 
 
-
-    /**
-     * This holds the button on the bottom of the screen
-     */
     @Override // equals to staic void main(Stirng args[])
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //loads the screen
         setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate( getLayoutInflater() );
 
-        tv = findViewById(R.id.textView);
-        et = findViewById(R.id.editText);
-        btn = findViewById(R.id.button2);
+        cityNameInput = binding.cityTextField;
+        forecastBtn = binding.forecastBtn;
+        temp = binding.temp;
+        maxTemp = binding.maxTemp;
+        minTemp = binding.minTemp;
+        humid = binding.humidity;
+        desc = binding.description;
+        weatherIcon = binding.icon;
 
 
-        btn.setOnClickListener(clk->{
-            String pwd = et.getText().toString();
+        queue = Volley.newRequestQueue(this);
+        imgqueue = Volley.newRequestQueue(this);
 
-            if (checkPasswordComplexity(pwd)){
-                tv.setText("Your Password meets the requirements");
-            }else tv.setText("You shall not pass!");
-        });
+        forecastBtn.setOnClickListener(click -> {
+            cityName = cityNameInput.getText().toString();
+            String apiKey = "7e943c97096a9784391a981c4d878b22";
+            String url="https://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(cityName)
+                    +"&appid="+ apiKey+ "&units=metric";
+
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                    (response) -> {
+                        try {
+                            JSONObject mainObject = response.getJSONObject("main");
+                            JSONArray weather = response.getJSONArray("weather");
+                            JSONObject position0 = weather.getJSONObject(0);
+                            String objDesc = position0.getString("description");
+                            String iconName = position0.getString("icon");
+                            double current = mainObject.getDouble("temp");
+                            double min = mainObject.getDouble("temp_min");
+                            double max = mainObject.getDouble("temp_max");
+                            int humidity = mainObject.getInt("humidity");
+
+
+                            // make sure to call these functions on the main GUI thread
+                            // to set and display the temperature and humidity
+                            runOnUiThread(()->{
+                                temp.setText("The current temperature is " + current);
+                                temp.setVisibility(View.VISIBLE);
+
+                                maxTemp.setText("The max temperature is " + max);
+                                maxTemp.setVisibility(View.VISIBLE);
+
+                                minTemp.setText("The min temperature is " + min);
+                                minTemp.setVisibility(View.VISIBLE);
+
+                                humid.setText("The humidity is " + humidity+"%");
+                                humid.setVisibility(View.VISIBLE);
+
+                                desc.setText(objDesc);
+                                desc.setVisibility(View.VISIBLE);
+                            });
+
+
+                            String imageUrl = "https://openweathermap.org/img/w/"+ iconName+ ".png";
+                            String pathname = getFilesDir()+ "/" + iconName+ ".png";
+
+                            File file = new File(pathname);
+
+                            // download the URL and store it as a bitmap
+                            // Here you are making a second HTTP request to the server and the
+                            // BitmapFactory.decodeStream() is reading the data from the server.
+                            if (file.exists()){
+                                image = BitmapFactory.decodeFile(pathname);
+                                weatherIcon.setImageBitmap(image);
+                            }else{
+                                ImageRequest imgReq = new ImageRequest(imageUrl, new Response.Listener<Bitmap>() {
+                                    @Override
+                                    public void onResponse(Bitmap bitmap) {
+                                            saveImageToFile(bitmap,iconName);
+                                        weatherIcon.setImageBitmap(bitmap);
+                                        try {
+                                            bitmap.compress(Bitmap.CompressFormat.PNG,100,MainActivity.this.openFileOutput(iconName+".png", Activity.MODE_PRIVATE));
+                                        } catch (FileNotFoundException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
+                                }, 1024, 1024, ImageView.ScaleType.CENTER, null,
+                                        (error)->{
+                                            Log.d("MainActivity","Image request failure");
+                                            error.printStackTrace();}
+                                );
+                                queue.add(imgReq);
+                            }
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    },
+                    (error) -> {
+                        Log.d("MainActivity","Weather request failure");
+                        error.printStackTrace(); });
+            queue.add(request);// send request to server
+                    });
+        }
+
+    private void saveImageToFile(Bitmap bitmap, String iconName) {
+        FileOutputStream fOut = null;
+        try {
+            fOut = openFileOutput(iconName + ".png", Context.MODE_PRIVATE);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
-    /**
-     * Function to validate the password
-     * @param pwd the password user input
-     * @return true or false if input password passes the validation
-     */
-    private boolean checkPasswordComplexity(String pwd) {
-        boolean foundUpperCase, foundLowerCase, foundNumber, foundSpecial;
-        foundUpperCase = foundLowerCase = foundNumber = foundSpecial = false;
-
-        char[] pwdToChar = pwd.toCharArray();
-
-        for (char c:pwdToChar){
-            if (isDigit(c)){
-                foundNumber = true;
-            }
-
-            if (isUpperCase(c)){
-                foundUpperCase = true;
-            }
-
-            if (isLowerCase(c)){
-                foundLowerCase = true;
-            }
-
-            if (isSpecialCharacter(c)){
-                foundSpecial = true;
-            }
-        }
-
-        if(!foundUpperCase)
-        {
-            CharSequence warning = "Password missing an Upper Case Letter";
-            int duration = Toast.LENGTH_SHORT;
-            Toast.makeText(this,warning,duration ).show(); ;
-            return false;
-        }
-
-        else if( ! foundLowerCase)
-        {
-            CharSequence warning = "Password missing a Lower Case Letter";
-            int duration = Toast.LENGTH_SHORT;
-            Toast.makeText(this,warning,duration ).show();
-            return false;
-        }
-        else if( ! foundNumber) {
-            CharSequence warning = "Password missing a Number";
-            int duration = Toast.LENGTH_SHORT;
-            Toast.makeText(this,warning,duration ).show();
-            return false;
-        }
-        else if(! foundSpecial) {
-            CharSequence warning = "Password missing a Special Character";
-            int duration = Toast.LENGTH_SHORT;
-            Toast.makeText(this,warning,duration ).show();
-            return false;
-        }
-        else
-            return true;
-
-
-    }
-
-    /**
-     * Function to check if password contain a special character
-     * @param c the character in password
-     * @return true or false if password contain a special character
-     */
-    private boolean isSpecialCharacter(char c) {
-        switch (c){
-            case '#':
-            case '?':
-            case '*':
-            case '$':
-            case '%':
-            case '&':
-            case '@':
-            case '!':
-            case '^':
-                return true;
-            default:
-                return false;
-        }
-    }
 }
