@@ -65,9 +65,8 @@ public class MainActivity extends AppCompatActivity {
     @Override // equals to staic void main(Stirng args[])
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //loads the screen
-        setContentView(R.layout.activity_main);
         binding = ActivityMainBinding.inflate( getLayoutInflater() );
+        setContentView(binding.getRoot());
 
         cityNameInput = binding.cityTextField;
         forecastBtn = binding.forecastBtn;
@@ -83,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         imgqueue = Volley.newRequestQueue(this);
 
         forecastBtn.setOnClickListener(click -> {
+            Log.d("MainActivity","Button OnClick work");
             cityName = cityNameInput.getText().toString();
             String apiKey = "7e943c97096a9784391a981c4d878b22";
             String url="https://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(cityName)
